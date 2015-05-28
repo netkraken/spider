@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e -E -u
+
+RESULT_PREFIX=/tmp/netkraken
+EXE_TGZ=dist/netkraken-exe.tgz
+
+if [[ ! -e $EXE_TGZ ]]; then
+    echo "cannot find $EXE_TGZ, aborting"
+    exit 1
+fi
+
+for HOST in $*; do
+    echo spidering $HOST
+    RESULT_DIR=$RESULT_PREFIX/$HOST
+    mkdir -p $RESULT_DIR
+    cat $EXE_TGZ | ssh -o ConnectTimeout=4 -o CheckHostIP=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes $HOST '
+        tar zxf -
+        . /etc/profile
+        netkraken-exe/analyze
+        rm -rf netkraken-exe
+        echo ____TAR_FOLLOWS_THIS_LINE____
+        tar zcf - -C /tmp/netconns/ .
+    ' | sed "1,/^____TAR_FOLLOWS_THIS_LINE____$/d" | tar zxf - -C $RESULT_DIR
+done
