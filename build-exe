@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e -E -u
+
+BUILDHOST=${1:?no buildhost given?!}
+DIST_DIR=dist
+
+git clone https://github.com/netkraken/minion.git
+(
+    cd minion
+    ./init-devenv
+)
+
+mkdir -p $DIST_DIR
+cat minion/target/dist/*/dist/*.dev0.tar.gz | ssh $BUILDHOST '
+    tar zxvf -
+    cd netkraken*
+    virtualenv venv
+    . venv/bin/activate
+    pip install cx_Freeze
+    echo $PWD > actual-pwd
+    cxfreeze --include-path=$PWD --target-dir=netkraken-exe scripts/analyze
+    echo ____TAR_FOLLOWS_THIS_LINE____
+    tar zcvf - netkraken-exe/
+' | sed "1,/^____TAR_FOLLOWS_THIS_LINE____$/d" > $DIST_DIR/netkraken-exe.tgz
