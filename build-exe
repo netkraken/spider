@@ -2,12 +2,19 @@
 set -e -E -u
 
 BUILDHOST=${1:?no buildhost given?!}
+MINION_DIR=minion
 DIST_DIR=dist
 
-git clone https://github.com/netkraken/minion.git
 (
-    cd minion
-    ./init-devenv
+    if [[ -d $MINION_DIR ]]; then
+        cd $MINION_DIR
+        git pull
+        ./init-devenv
+    else
+        git clone https://github.com/netkraken/minion.git
+        cd $MINION_DIR
+        ./init-devenv
+    fi
 )
 
 mkdir -p $DIST_DIR
