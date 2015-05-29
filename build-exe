@@ -25,7 +25,7 @@ cat minion/target/dist/*/dist/*.dev0.tar.gz | ssh $BUILDHOST '
     . venv/bin/activate
     pip install cx_Freeze docopt
     echo $PWD > actual-pwd
-    cxfreeze --include-path=$PWD --target-dir=netkraken-exe scripts/analyze
+    cxfreeze --include-path=$PWD --target-dir=netkraken-exe scripts/record-connections
     echo ____TAR_FOLLOWS_THIS_LINE____
     tar zcvf - netkraken-exe/
 ' | sed "1,/^____TAR_FOLLOWS_THIS_LINE____$/d" > $DIST_DIR/netkraken-exe.tgz
