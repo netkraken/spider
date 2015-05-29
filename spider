@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e -E -u
+
+HOSTS=${1:?no hosts given?!}
+
+pdsh -f 32 -w $HOSTS ". /etc/profile; netkraken-exe/fetch-connections --rounds=10 --delay=30 < /dev/null > /dev/null 2>&1 &"

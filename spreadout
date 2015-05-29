@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e -E -u
+
+EXE_TGZ=dist/netkraken-exe.tgz
+
+if [[ ! -e $EXE_TGZ ]]; then
+    echo "cannot find $EXE_TGZ, aborting"
+    exit 1
+fi
+
+for HOST in $*; do
+    echo "distributing to $HOST"
+    ssh -o LogLevel=error \
+        -o ConnectTimeout=1 \
+        -o CheckHostIP=no \
+        -o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null \
+        -o BatchMode=yes \
+        $HOST 'tar zxf -' < $EXE_TGZ || echo "problems while distributing to $HOST" >&2 &
+    sleep 0.2
+done
+wait
+
+echo "done."

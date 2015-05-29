@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e -E -u
+
+DEST_DIR=netconns
+mkdir -p $DEST_DIR
+for HOST in $*; do
+    echo "collecting netconns from $HOST"
+    rsync -Paq --delete -e "ssh \
+        -o ConnectTimeout=1 \
+        -o CheckHostIP=no \
+        -o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null \
+        -o BatchMode=yes \
+        -o LogLevel=error" $HOST:/tmp/netconns/* $DEST_DIR/$HOST || echo "a problem occured while collecting data from $HOST" &
+    sleep 0.4
+done
+wait
+
+echo "done."
