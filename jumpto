@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e -E -u
+
+JUMPHOST=${1:?no jump host given?!}
+
+scp -r dist spreadout spider reap $JUMPHOST:
