@@ -18,12 +18,12 @@ DIST_DIR=dist
 )
 
 mkdir -p $DIST_DIR
-cat minion/target/dist/*/dist/*.dev0.tar.gz | ssh $BUILDHOST '
+cat $MINION_DIR/target/dist/*/dist/*.tar.gz | ssh $BUILDHOST '
     tar zxvf -
     cd netkraken*
-    virtualenv venv
+    virtualenv -p /usr/bin/python2 venv
     . venv/bin/activate
-    pip install cx_Freeze docopt
+    pip install cx_Freeze docopt countdb
     echo $PWD > actual-pwd
     cxfreeze --include-path=$PWD --target-dir=netkraken-exe scripts/record-connections
     echo ____TAR_FOLLOWS_THIS_LINE____
