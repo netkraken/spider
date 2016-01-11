@@ -1,31 +1,20 @@
 #!/bin/bash
 set -e -E -u
 
-BUILDHOST=${1:?no buildhost given?!}
-MINION_DIR=minion
 DIST_DIR=dist
 
-(
-    if [[ -d $MINION_DIR ]]; then
-        cd $MINION_DIR
-        git pull
-        ./init-devenv
-    else
-        git clone https://github.com/netkraken/minion.git
-        cd $MINION_DIR
-        ./init-devenv
-    fi
-)
-
+rm -rf $DIST_DIR
 mkdir -p $DIST_DIR
-cat $MINION_DIR/target/dist/*/dist/*.tar.gz | ssh $BUILDHOST '
-    tar zxvf -
-    cd netkraken*
-    virtualenv -p /usr/bin/python2 venv
-    . venv/bin/activate
-    pip install cx_Freeze docopt countdb
-    echo $PWD > actual-pwd
-    cxfreeze --include-path=$PWD --target-dir=netkraken-exe scripts/record-connections
-    echo ____TAR_FOLLOWS_THIS_LINE____
-    tar zcvf - netkraken-exe/
-' | sed "1,/^____TAR_FOLLOWS_THIS_LINE____$/d" > $DIST_DIR/netkraken-exe.tgz
+cd $DIST_DIR
+virtualenv -p /usr/bin/python2 venv
+set +u
+. venv/bin/activate
+set -u
+
+rm -rf tmp/
+git clone https://github.com/netkraken/minion.git --depth 1 tmp
+
+pip install cx_Freeze docopt countdb netkraken-minion
+cxfreeze --include-path=$PWD --target-dir=netkraken-bin tmp/src/main/scripts/record-connections
+
+tar zcvf netkraken-bin.tgz netkraken-bin/
