@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e -E -u
 
-EXE_TGZ=dist/netkraken-exe.tgz
+BIN_TGZ=dist/netkraken-bin.tgz
 
-if [[ ! -e $EXE_TGZ ]]; then
-    echo "cannot find $EXE_TGZ, aborting"
+if [[ ! -e $BIN_TGZ ]]; then
+    echo "cannot find $BIN_TGZ, aborting"
     exit 1
 fi
 
@@ -16,7 +16,7 @@ for HOST in $*; do
         -o StrictHostKeyChecking=no \
         -o UserKnownHostsFile=/dev/null \
         -o BatchMode=yes \
-        $HOST 'tar zxf -' < $EXE_TGZ || echo "problems while distributing to $HOST" >&2 &
+        $HOST 'tar zxf -' < $BIN_TGZ || echo "problems while distributing to $HOST" >&2 &
     sleep 0.2
 done
 wait
